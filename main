@@ -1,0 +1,52 @@
+import requests
+import socket
+from bs4 import BeautifulSoup
+import re
+
+def check_site(url, domen='ru'):
+
+  try:
+    url = f'https://www.{url}.{domen}'
+    response = requests.get(url)
+    return True
+  
+  except:
+    return False
+
+def get_ip_by_hostname(url, domen='ru'):
+  url = f'{url}.{domen}'
+  ip = socket.gethostbyname(url)
+  return ip
+
+def get_number(url, domen='ru'):
+
+  url = f'https://www.{url}.{domen}'
+  response = requests.get(url)
+
+  soup = BeautifulSoup(response.text)
+  phone_div = soup.find_all('div', {'class': 'phone-number'})[0]
+  number = phone_div.select_one('a').text
+  number = number.replace(' ', '')
+  
+  return number
+
+def check_number(phone_number):
+  phone_number_pattern = re.compile(r'\+?\d+\(\d+\)\d+-\d+-\d+')
+  return bool(phone_number_pattern.fullmatch(phone_number))
+
+def main():
+
+  if check_site('sstmk'):
+
+    ip = get_ip_by_hostname('sstmk')
+    phone_number = get_number('sstmk')
+    
+    if check_number(phone_number):
+      print(phone_number)
+      print('Номер соответсвует паттерну')
+  
+  else:
+    print('Сайт не работает')
+
+if __name__ == '__main__':
+  main()
